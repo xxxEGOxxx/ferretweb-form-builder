@@ -14,15 +14,17 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import DragOverlayWrapper from "./DragOverlayWrapper";
+import useDesigner from "./hooks/useDesigner";
 import { ImSpinner2 } from "react-icons/im";
-import Confetti from "react-confetti";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { toast } from "./ui/use-toast";
 import Link from "next/link";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
+import Confetti from "react-confetti";
 
 function FormBuilder({ form }: { form: Form }) {
+  const { setElements, setSelectedElement } = useDesigner();
   const [isReady, setIsReady] = useState(false);
 
   const mouseSensor = useSensor(MouseSensor, {
@@ -42,9 +44,13 @@ function FormBuilder({ form }: { form: Form }) {
 
   useEffect(() => {
     if (isReady) return;
+    const elements = JSON.parse(form.content);
+    setElements(elements);
+    console.log(elements);
+    setSelectedElement(null);
     const readyTimeout = setTimeout(() => setIsReady(true), 500);
     return () => clearTimeout(readyTimeout);
-  }, [form, isReady]);
+  }, [form, setElements, isReady, setSelectedElement]);
 
   if (!isReady) {
     return (
