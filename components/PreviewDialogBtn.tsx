@@ -1,17 +1,32 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Button } from "./ui/button";
 import { MdPreview } from "react-icons/md";
 import useDesigner from "./hooks/useDesigner";
 import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { FormElements } from "./FormElements";
+import PaginationSection from "./PaginationSection";
 
 function PreviewDialogBtn() {
-  const { elements } = useDesigner();
+  const [isClient, setIsClient] = useState(false);
+  const { elements, setSavedElements, savedElements } = useDesigner();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5); // You can adjust this value
+
+  // Get current page items
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = savedElements.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant={"outline"} className="gap-2">
+        <Button
+          onClick={() => setSavedElements(elements)}
+          variant={"outline"}
+          className="gap-2"
+        >
           <MdPreview className="h-6 w-6" />
           Preview
         </Button>
@@ -27,12 +42,27 @@ function PreviewDialogBtn() {
         </div>
         <div className="bg-accent flex flex-col flex-grow items-center justify-center p-4 bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)] overflow-y-auto">
           <div className="max-w-[620px] flex flex-col gap-4 flex-grow bg-background h-full w-full rounded-2xl p-8 overflow-y-auto">
-            {elements.map((element) => {
-              const FormComponent = FormElements[element.type].formComponent;
-              return (
-                <FormComponent key={element.id} elementInstance={element} />
-              );
-            })}
+            <div className="flex flex-col gap-4 flex-grow">
+              {currentItems.map((element) => {
+                /// pagination should be implemented to this elements
+                console.log("PREVIEW", element);
+                for (const key in element.isVisible) {
+                  if (element.isVisible[key] === false) return;
+                }
+
+                const FormComponent = FormElements[element.type].formComponent;
+
+                return (
+                  <FormComponent key={element.id} elementInstance={element} />
+                );
+              })}
+            </div>
+            <PaginationSection
+              totalItems={savedElements.length}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+            />
           </div>
         </div>
       </DialogContent>

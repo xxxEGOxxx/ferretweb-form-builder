@@ -22,21 +22,22 @@ import { toast } from "./ui/use-toast";
 import Link from "next/link";
 import { BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import Confetti from "react-confetti";
+import EasyMode from "./EasyMode";
 
 function FormBuilder({ form }: { form: Form }) {
-  const { setElements, setSelectedElement } = useDesigner();
+  const { setElements, setSelectedElement, isEasyMode } = useDesigner();
   const [isReady, setIsReady] = useState(false);
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
-      distance: 10, // 10px
+      distance: isEasyMode ? 0 : 10, // 10px
     },
   });
 
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: {
-      delay: 300,
-      tolerance: 5,
+      delay: isEasyMode ? 0 : 300,
+      tolerance: isEasyMode ? 0 : 5,
     },
   });
 
@@ -123,6 +124,7 @@ function FormBuilder({ form }: { form: Form }) {
             <span className="text-muted-foreground mr-2">Form:</span>
             {form.name}
           </h2>
+          <EasyMode />
           <div className="flex items-center gap-2">
             <PreviewDialogBtn />
             {!form.published && (
@@ -133,7 +135,7 @@ function FormBuilder({ form }: { form: Form }) {
             )}
           </div>
         </nav>
-        <div className="flex w-full flex-grow items-center justify-center relative overflow-y-auto h-[200px] bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
+        <div className="flex w-full flex-grow items-center justify-center relative overflow-y-auto h-full bg-accent bg-[url(/paper.svg)] dark:bg-[url(/paper-dark.svg)]">
           <Designer />
         </div>
       </main>

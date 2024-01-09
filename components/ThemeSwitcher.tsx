@@ -31,6 +31,9 @@ function ThemeSwitcher() {
         >
           <MoonIcon className="h-[1.4rem] w-[1.4rem] rotate-90 transition-all dark:rotate-0" />
         </TabsTrigger>
+        {/* <TabsTrigger value="system" onClick={() => setTheme("system")}>
+          <DesktopIcon className="h-[1.2rem] w-[1.2rem]" />
+        </TabsTrigger> */}
       </TabsList>
     </Tabs>
   );

@@ -18,6 +18,7 @@ import {
 import { idGenerator } from "@/lib/idGenerator";
 import { Button } from "./ui/button";
 import { BiSolidTrash } from "react-icons/bi";
+import SidebarBtnElement, { SidebarBtnElementHint } from "./SidebarBtnElement";
 
 function Designer() {
   const {
@@ -26,6 +27,7 @@ function Designer() {
     selectedElement,
     setSelectedElement,
     removeElement,
+    isEasyMode,
   } = useDesigner();
 
   console.log(elements);
@@ -47,6 +49,18 @@ function Designer() {
 
       const droppingSidebarBtnOverDesignerDropArea =
         isDesignerBtnElement && isDroppingOverDesignerDropArea;
+
+      //Easy mode scenario
+      if (isEasyMode) {
+        // In easy mode we only allow dragging sidebar buttons into the designer area
+        const type = active.data?.current?.type;
+        const newElement = FormElements[type as ElementsType].construct(
+          idGenerator(elements)
+        );
+        console.log(newElement);
+        addElement(elements.length, newElement);
+        return;
+      }
 
       // First scenario
       if (droppingSidebarBtnOverDesignerDropArea) {
@@ -133,7 +147,7 @@ function Designer() {
       <div
         className="p-4 w-full"
         onClick={() => {
-          // if (selectedElement) setSelectedElement(null);
+          if (selectedElement) setSelectedElement(null);
         }}
       >
         <div
@@ -169,7 +183,14 @@ function Designer() {
 }
 
 function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
-  const { removeElement, selectedElement, setSelectedElement } = useDesigner();
+  const {
+    removeElement,
+    selectedElement,
+    setSelectedElement,
+    updateElement,
+    elements,
+    isEasyMode,
+  } = useDesigner();
 
   const [mouseIsOver, setMouseIsOver] = useState<boolean>(false);
   const topHalf = useDroppable({
@@ -217,6 +238,7 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
       onClick={(e) => {
         e.stopPropagation();
         setSelectedElement(element);
+        // isEasyMode &&
       }}
     >
       <div
@@ -235,6 +257,29 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
               variant={"outline"}
               onClick={(e) => {
                 e.stopPropagation(); // avoid selection of element while deleting
+                elements.map((checkedElement) => {
+                  if (
+                    checkedElement.extraAttributes?.relatedElements?.includes(
+                      element.id
+                    )
+                  ) {
+                    const newRelatedElements: string[] | undefined[] =
+                      checkedElement.extraAttributes.relatedElements.filter(
+                        (relatedElement: string) =>
+                          relatedElement !== element.id
+                      );
+                    updateElement(checkedElement.id, {
+                      ...checkedElement,
+                      extraAttributes: {
+                        ...checkedElement.extraAttributes,
+                        relatedElements: newRelatedElements,
+                      },
+                    });
+                  } else if (element.id in checkedElement.isVisible) {
+                    checkedElement.isVisible[element.id] = undefined;
+                    console.log("Is still visible", checkedElement.isVisible);
+                  }
+                });
                 removeElement(element.id);
               }}
             >
@@ -253,14 +298,20 @@ function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
       )}
       <div
         className={cn(
-          "flex w-full gap-2 pr-4 h-[120px] items-center rounded-md bg-accent/40 pointer-events-none opacity-100 overflow-clip",
+          "flex w-full gap-2 h-[120px] items-center justify-between rounded-md bg-accent/40 pointer-events-none opacity-100 overflow-clip",
           mouseIsOver && "opacity-30"
         )}
       >
-        <div className="bg-red-400/20 px-1 h-full flex items-center justify-center">
-          <div className="">{element.id}</div>
+        <div className="flex items-center w-full gap-2 h-full">
+          <div className="border-r dark:border-primary-foreground border-primary/10 text-primary/40 px-1 w-[50px] min-w-[50px] h-full flex items-center justify-center ">
+            <div>{element.id}</div>
+          </div>
+          <DesignerElement elementInstance={element} />
         </div>
-        <DesignerElement elementInstance={element} />
+        <SidebarBtnElementHint
+          formElement={FormElements[element.type]}
+          noOutline
+        />
       </div>
       {bottomHalf.isOver && (
         <div className="absolute bottom-0 w-full rounded-md h-[7px] bg-primary rounded-t-none" />

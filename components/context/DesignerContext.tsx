@@ -19,6 +19,16 @@ type DesignerContextType = {
   setSelectedElement: Dispatch<SetStateAction<FormElementInstance | null>>;
 
   updateElement: (id: string, element: FormElementInstance) => void;
+
+  savedElements: FormElementInstance[];
+  setSavedElements: Dispatch<SetStateAction<FormElementInstance[]>>;
+  addSavedElement: (index: number, element: FormElementInstance) => void;
+  removeSavedElement: (id: string) => void;
+
+  updateSavedElement: (id: string, element: FormElementInstance) => void;
+
+  isEasyMode: boolean;
+  setIsEasyMode: Dispatch<SetStateAction<boolean>>;
 };
 
 export const DesignerContext = createContext<DesignerContextType | null>(null);
@@ -28,7 +38,10 @@ export default function DesignerContextProvider({
 }: {
   children: ReactNode;
 }) {
+  const [isEasyMode, setIsEasyMode] = useState<boolean>(false);
+
   const [elements, setElements] = useState<FormElementInstance[]>([]);
+
   const [selectedElement, setSelectedElement] =
     useState<FormElementInstance | null>(null);
 
@@ -53,6 +66,29 @@ export default function DesignerContextProvider({
     });
   };
 
+  const [savedElements, setSavedElements] = useState<FormElementInstance[]>([]);
+
+  const addSavedElement = (index: number, element: FormElementInstance) => {
+    setSavedElements((prev) => {
+      const newElements = [...prev];
+      newElements.splice(index, 0, element);
+      return newElements;
+    });
+  };
+
+  const removeSavedElement = (id: string) => {
+    setSavedElements((prev) => prev.filter((element) => element.id !== id));
+  };
+
+  const updateSavedElement = (id: string, element: FormElementInstance) => {
+    setSavedElements((prev) => {
+      const newElements = [...prev];
+      const index = newElements.findIndex((el) => el.id === id);
+      newElements[index] = element;
+      return newElements;
+    });
+  };
+
   return (
     <DesignerContext.Provider
       value={{
@@ -65,6 +101,16 @@ export default function DesignerContextProvider({
         setSelectedElement,
 
         updateElement,
+
+        savedElements,
+        setSavedElements,
+        addSavedElement,
+        removeSavedElement,
+
+        updateSavedElement,
+
+        isEasyMode,
+        setIsEasyMode,
       }}
     >
       {children}
