@@ -8,9 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ReactNode, Suspense } from "react";
-import { LuView } from "react-icons/lu";
-import { FaWpforms } from "react-icons/fa";
+import { Suspense } from "react";
 
 import { Separator } from "@/components/ui/separator";
 import CreateFormBtn from "@/components/CreateFormBtn";
@@ -78,7 +76,8 @@ function FormCard({ form }: { form: Form }) {
         {form.published && (
           <Button asChild className="w-full mt-2 text-md gap-4">
             <Link href={`/forms/${form.id}`}>
-              View details <BiRightArrowAlt />
+              View details
+              <BiRightArrowAlt />
             </Link>
           </Button>
         )}

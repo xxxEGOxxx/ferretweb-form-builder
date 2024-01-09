@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "FormBuilder",
-  description: "Powerfull tool for form building!",
+  description: "Powerful tool for form building!",
 };
 
 export default function RootLayout({
